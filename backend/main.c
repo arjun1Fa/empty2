@@ -368,4 +368,70 @@ void handle_client(socket_t client_sock) {
     CLOSE_SOCKET(client_sock);
 }
 
-int main(void) { return 0; }
+int main(void) {
+    if (!init_networking()) {
+        return 1;
+    }
+
+    socket_t server_sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+    if (IS_INVALID_SOCKET(server_sock)) {
+        fprintf(stderr, "[FATAL] Failed to create socket.\n");
+        cleanup_networking();
+        return 1;
+    }
+
+    int opt = 1;
+#ifdef _WIN32
+    setsockopt(server_sock, SOL_SOCKET, SO_REUSEADDR, (const char *)&opt, sizeof(opt));
+#else
+    setsockopt(server_sock, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
+#endif
+
+    struct sockaddr_in server_addr;
+    memset(&server_addr, 0, sizeof(server_addr));
+    server_addr.sin_family = AF_INET;
+    server_addr.sin_addr.s_addr = htonl(INADDR_ANY);
+    server_addr.sin_port = htons(PORT);
+
+    if (bind(server_sock, (struct sockaddr *)&server_addr, sizeof(server_addr)) != 0) {
+        fprintf(stderr, "[FATAL] Failed to bind to port %d. Is another instance already running?\n", PORT);
+        CLOSE_SOCKET(server_sock);
+        cleanup_networking();
+        return 1;
+    }
+
+    if (listen(server_sock, 10) != 0) {
+        fprintf(stderr, "[FATAL] Failed to listen on socket.\n");
+        CLOSE_SOCKET(server_sock);
+        cleanup_networking();
+        return 1;
+    }
+
+    printf("====================================================\n");
+    printf("  DebugCalc C Backend v1.0\n");
+    printf("  Listening on http://localhost:%d\n", PORT);
+    printf("  Health Check: http://localhost:%d/health\n", PORT);
+    printf("  Calculate:    http://localhost:%d/api/calculate?op=add&a=10&b=20\n", PORT);
+    printf("====================================================\n");
+    printf("[INFO] Server ready to accept connections. Press Ctrl+C to terminate.\n\n");
+
+    while (1) {
+        struct sockaddr_in client_addr;
+#ifdef _WIN32
+        int client_len = sizeof(client_addr);
+#else
+        socklen_t client_len = sizeof(client_addr);
+#endif
+        socket_t client_sock = accept(server_sock, (struct sockaddr *)&client_addr, &client_len);
+
+        if (IS_INVALID_SOCKET(client_sock)) {
+            continue;
+        }
+
+        handle_client(client_sock);
+    }
+
+    CLOSE_SOCKET(server_sock);
+    cleanup_networking();
+    return 0;
+}
