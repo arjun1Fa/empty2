@@ -116,4 +116,25 @@ int get_query_param(const char *query, const char *key, char *out_val, size_t ma
     return 0;
 }
 
+/* Validate if a string represents a valid numeric input */
+int is_valid_number(const char *str) {
+    if (!str || *str == '\0') return 0;
+    
+    int decimal_count = 0;
+    /*
+     * NOTE: Validation logic for student inspection.
+     * Bug #5: Does not account for optional leading minus sign '-' or plus sign '+'.
+     * This causes negative inputs like "-5" to fail validation.
+     */
+    for (int i = 0; str[i] != '\0'; i++) {
+        if (str[i] == '.') {
+            decimal_count++;
+            if (decimal_count > 1) return 0;
+        } else if (!isdigit((unsigned char)str[i])) {
+            return 0;
+        }
+    }
+    return 1;
+}
+
 int main(void) { return 0; }
