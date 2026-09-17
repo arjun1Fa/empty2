@@ -304,4 +304,68 @@ void handle_calculate(socket_t client_sock, const char *query) {
            op, a_str, b_str, formatted_num);
 }
 
+/* Process incoming HTTP client request */
+void handle_client(socket_t client_sock) {
+    char buffer[BUFFER_SIZE];
+    int bytes_received = recv(client_sock, buffer, sizeof(buffer) - 1, 0);
+
+    if (bytes_received <= 0) {
+        CLOSE_SOCKET(client_sock);
+        return;
+    }
+
+    buffer[bytes_received] = '\0';
+
+    /* Extract HTTP method and requested path */
+    char method[16] = {0};
+    char target[1024] = {0};
+
+    if (sscanf(buffer, "%15s %1023s", method, target) != 2) {
+        send_http_response(client_sock, 400, "Bad Request", "{\"error\": \"Malformed HTTP request\"}");
+        CLOSE_SOCKET(client_sock);
+        return;
+    }
+
+    /* Handle CORS preflight requests */
+    if (strcmp(method, "OPTIONS") == 0) {
+        send_http_response(client_sock, 204, "No Content", "");
+        CLOSE_SOCKET(client_sock);
+        return;
+    }
+
+    /* Only GET requests are supported */
+    if (strcmp(method, "GET") != 0) {
+        send_http_response(client_sock, 405, "Method Not Allowed", "{\"error\": \"Method not allowed\"}");
+        CLOSE_SOCKET(client_sock);
+        return;
+    }
+
+    /* Separate route path and query string */
+    char path[512] = {0};
+    char *query = NULL;
+    char *question_mark = strchr(target, '?');
+
+    if (question_mark) {
+        size_t path_len = question_mark - target;
+        if (path_len >= sizeof(path)) path_len = sizeof(path) - 1;
+        strncpy(path, target, path_len);
+        path[path_len] = '\0';
+        query = question_mark + 1;
+    } else {
+        strncpy(path, target, sizeof(path) - 1);
+    }
+
+    /* Route request */
+    if (strcmp(path, "/health") == 0) {
+        handle_health(client_sock);
+    } else if (strcmp(path, "/api/calculate") == 0) {
+        handle_calculate(client_sock, query ? query : "");
+    } else {
+        send_http_response(client_sock, 404, "Not Found", "{\"error\": \"Endpoint not found\"}");
+        printf("[WARN] 404 Not Found: %s\n", path);
+    }
+
+    CLOSE_SOCKET(client_sock);
+}
+
 int main(void) { return 0; }
