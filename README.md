@@ -9,7 +9,7 @@
 
 ---
 
-## 🎯 Project Purpose
+## 🎯 Priject Purpose
 
 In real-world software engineering, developers rarely write code from scratch. Most time is spent:
 
