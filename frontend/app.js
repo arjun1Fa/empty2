@@ -304,4 +304,54 @@
     }
   }
 
+  // Event Listeners - Operations
+  opButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      selectOperation(btn.dataset.op);
+    });
+  });
+
+  // Event Listeners - Live preview inputs
+  inputA.addEventListener('input', updateExpressionPreview);
+  inputB.addEventListener('input', updateExpressionPreview);
+
+  // Clear single inputs
+  btnClearA.addEventListener('click', () => {
+    inputA.value = '';
+    updateExpressionPreview();
+    inputA.focus();
+  });
+
+  btnClearB.addEventListener('click', () => {
+    inputB.value = '';
+    updateExpressionPreview();
+    inputB.focus();
+  });
+
+  // Swap
+  btnSwap.addEventListener('click', swapOperands);
+
+  // Clear all
+  btnClearAll.addEventListener('click', clearAll);
+
+  // Compute button
+  btnCompute.addEventListener('click', performCalculation);
+
+  // Error dismiss
+  btnErrorDismiss.addEventListener('click', clearError);
+
+  // Keyboard shortcuts
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      performCalculation();
+    } else if (e.key === 'Escape') {
+      clearAll();
+    }
+  });
+
+  // Initial setup
+  selectOperation('add');
+  checkBackendHealth();
+  setInterval(checkBackendHealth, HEALTH_CHECK_INTERVAL_MS);
+  inputA.focus();
 })();
