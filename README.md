@@ -205,3 +205,94 @@ Evaluates a mathematical operation between two numeric operands `a` and `b`.
 
 ---
 
+## 🛠️ Contribution Workflow for Students
+
+Follow this step-by-step guide to find a bug, fix it, and submit your pull request!
+
+### Step 1: Clone the Repository
+```bash
+git clone https://github.com/your-org/debugcalc.git
+cd debugcalc
+```
+
+### Step 2: Create a Dedicated Branch
+Never commit directly to `main`! Create a branch named descriptively for the bug you are tackling:
+```bash
+git checkout -b fix/subtraction-reversed-operands
+```
+*(Branch naming convention: `fix/<issue-name>` or `feature/<feature-name>`)*
+
+### Step 3: Reproduce and Confirm the Bug
+Before changing any code:
+1. Start the backend (`.\backend\debugcalc.exe` or `./backend/debugcalc`).
+2. Open the frontend or use `curl`:
+   ```bash
+   curl "http://localhost:8080/api/calculate?op=subtract&a=10&b=3"
+   ```
+3. Observe the output:
+   - What did you expect? (`7`)
+   - What did it actually return? (`-7`)
+4. Document the exact reproduction steps.
+
+### Step 4: Locate and Fix the Issue in C
+Open `backend/main.c` in your code editor.
+- Search for the relevant function or operation (`strcmp(op, "subtract")`).
+- Read the surrounding logic and comments carefully.
+- Implement the minimal, correct fix.
+
+### Step 5: Recompile and Verify
+Recompile the backend:
+```bash
+gcc backend/main.c -o backend/debugcalc.exe -lws2_32
+```
+Run tests against your fix:
+1. Re-run your reproduction command to verify that the bug is fixed.
+2. Run edge-case tests to make sure you didn't introduce regressions.
+
+### Step 6: Commit Your Changes
+Stage and commit your changes using a clean [Conventional Commit](https://www.conventionalcommits.org/) message:
+```bash
+git add backend/main.c
+git commit -m "fix(backend): correct operand order in subtraction"
+```
+
+### Step 7: Push and Open a Pull Request
+Push your branch to your remote repository:
+```bash
+git push -u origin fix/subtraction-reversed-operands
+```
+Then go to GitHub/GitLab and open a **Pull Request** against `main`!
+
+#### Pull Request Description Checklist
+Your PR description should include:
+- **Problem**: What was broken?
+- **Reproduction**: How can reviewers reproduce the old behavior?
+- **Cause**: Why was the bug happening in `backend/main.c`?
+- **Solution**: How did your changes fix the issue?
+- **Verification**: Proof that it now works (screenshots or curl output).
+
+---
+
+## 💡 Debugging Tips for Beginners
+
+1. **Watch the Terminal Logs**:
+   Every time a request arrives, the server prints a log line showing the path, query parameters, status code, and result:
+   ```text
+   [INFO] Handled GET /api/calculate?op=add&a=10&b=20 -> 200 OK (result: 30)
+   ```
+2. **Use the In-Page API Inspector**:
+   The bottom of the DebugCalc web page features a live **API Inspector** that shows the outgoing URL and the raw JSON response payload returned by your C code.
+3. **Inspect HTTP Status Codes with curl**:
+   Add the `-i` flag to curl to view the raw HTTP headers and status codes:
+   ```bash
+   curl -i "http://localhost:8080/api/calculate?op=divide&a=0&b=5"
+   ```
+
+---
+
+## 📜 License
+
+This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
+#   e m p t y 2 
+ 
+ 
