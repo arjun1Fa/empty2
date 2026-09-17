@@ -182,4 +182,126 @@ void handle_health(socket_t client_sock) {
     printf("[INFO] Handled GET /health -> 200 OK\n");
 }
 
+/* Handler for GET /api/calculate */
+void handle_calculate(socket_t client_sock, const char *query) {
+    char op[64] = {0};
+    char a_raw[64] = {0};
+    char b_raw[64] = {0};
+    char a_str[64] = {0};
+    char b_str[64] = {0};
+
+    if (!get_query_param(query, "op", op, sizeof(op)) ||
+        !get_query_param(query, "a", a_raw, sizeof(a_raw)) ||
+        !get_query_param(query, "b", b_raw, sizeof(b_raw))) {
+        send_http_response(client_sock, 400, "Bad Request",
+                           "{\"error\": \"Missing required parameters: op, a, and b are required\"}");
+        printf("[WARN] GET /api/calculate -> 400 Bad Request (Missing parameters)\n");
+        return;
+    }
+
+    url_decode(a_str, a_raw);
+    url_decode(b_str, b_raw);
+
+    /* Validate numerical representation of inputs */
+    if (!is_valid_number(a_str)) {
+        send_http_response(client_sock, 400, "Bad Request",
+                           "{\"error\": \"Invalid format for operand 'a'. Must be a valid number.\"}");
+        printf("[WARN] GET /api/calculate -> 400 Bad Request (Invalid operand a: %s)\n", a_str);
+        return;
+    }
+
+    if (!is_valid_number(b_str)) {
+        send_http_response(client_sock, 400, "Bad Request",
+                           "{\"error\": \"Invalid format for operand 'b'. Must be a valid number.\"}");
+        printf("[WARN] GET /api/calculate -> 400 Bad Request (Invalid operand b: %s)\n", b_str);
+        return;
+    }
+
+    /*
+     * Parse numeric values.
+     * Bug #4: Operand b is parsed using atoi() instead of atof()/strtod(),
+     * silently truncating decimal places for b!
+     */
+    double a = atof(a_str);
+    double b = (double)atoi(b_str);
+
+    /*
+     * Bug #6: Erroneous safeguard check.
+     * Rejects multiplication if either operand is 0, returning an error
+     * even though 0 * x = 0 is a completely valid arithmetic calculation!
+     */
+    if (strcmp(op, "multiply") == 0 && (a == 0.0 || b == 0.0)) {
+        send_http_response(client_sock, 400, "Bad Request",
+                           "{\"error\": \"Multiplication by zero is not allowed\"}");
+        printf("[WARN] GET /api/calculate -> 400 Bad Request (Multiplication by zero rejected)\n");
+        return;
+    }
+
+    double result = 0.0;
+
+    if (strcmp(op, "add") == 0) {
+        /*
+         * Bug #8: Faulty negative operand handling in addition.
+         * If a is negative and b is positive, it computes (b - a) instead of (a + b),
+         * which inadvertently adds the absolute value of a!
+         */
+        if (a < 0.0 && b > 0.0) {
+            result = b - a;
+        } else {
+            result = a + b;
+        }
+    } else if (strcmp(op, "subtract") == 0) {
+        /*
+         * Bug #1: Operand ordering is reversed for subtraction!
+         * Computes (b - a) instead of (a - b).
+         */
+        result = b - a;
+    } else if (strcmp(op, "multiply") == 0) {
+        /*
+         * Bug #10: Product is cast to (long long), losing decimal precision
+         * when multiplying floating point values (e.g., 2.5 * 2.5 becomes 6 instead of 6.25).
+         */
+        result = (double)((long long)(a * b));
+    } else if (strcmp(op, "divide") == 0) {
+        /*
+         * Bug #3: Division by zero validation incorrectly checks 'a' instead of 'b'!
+         * As a result:
+         *   - 0 / 5 is rejected with "Division by zero"
+         *   - 5 / 0 bypasses the check!
+         */
+        if (fabs(a) < 1e-9) {
+            /*
+             * Bug #9: Returns HTTP status 200 OK for an error condition
+             * instead of 400 Bad Request.
+             */
+            send_http_response(client_sock, 200, "OK",
+                               "{\"error\": \"Division by zero\"}");
+            printf("[WARN] GET /api/calculate -> 200 OK with error (Division by zero check failed on a)\n");
+            return;
+        }
+
+        /*
+         * Bug #2: Operand ordering is reversed for division!
+         * Computes (b / a) instead of (a / b).
+         */
+        result = b / a;
+    } else {
+        /*
+         * Bug #7: Invalid or unrecognized operation is NOT rejected with 400 Bad Request!
+         * It falls through and defaults to performing addition with a 200 OK status.
+         */
+        result = a + b;
+    }
+
+    char formatted_num[64];
+    format_json_number(result, formatted_num, sizeof(formatted_num));
+
+    char response_body[128];
+    snprintf(response_body, sizeof(response_body), "{\"result\": %s}", formatted_num);
+
+    send_http_response(client_sock, 200, "OK", response_body);
+    printf("[INFO] Handled GET /api/calculate?op=%s&a=%s&b=%s -> 200 OK (result: %s)\n",
+           op, a_str, b_str, formatted_num);
+}
+
 int main(void) { return 0; }
