@@ -171,6 +171,37 @@
         </div>
       </section>
 
+      <!-- Student Debugger & API Inspector -->
+      <section class="inspector-card" aria-label="API Inspector">
+        <div class="inspector-header">
+          <div class="inspector-title-row">
+            <span class="inspector-badge">API Inspector</span>
+            <span class="inspector-subtitle">HTTP Contract Monitor</span>
+          </div>
+          <span class="inspector-status-badge" id="inspector-http-status">Idle</span>
         </div>
+
+        <div class="inspector-content">
+          <div class="inspector-item">
+            <span class="inspector-label">Outgoing Request:</span>
+            <code class="inspector-code" id="inspector-url">Waiting for calculation...</code>
+          </div>
+          <div class="inspector-item">
+            <span class="inspector-label">Backend Response:</span>
+            <pre class="inspector-pre" id="inspector-response">{}</pre>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+      <div class="footer-note">
+        DebugCalc is an open-source teaching tool. The frontend is bug-free. Find and fix the backend bugs in <code>backend/main.c</code>!
+      </div>
+    </footer>
+  </div>
+
+  <script src="app.js"></script>
 </body>
 </html>
