@@ -5,22 +5,24 @@
 [![Backend](https://img.shields.io/badge/Backend-Pure%20C-orange.svg)]()
 [![Frontend](https://img.shields.io/badge/Frontend-HTML5%20%2F%20CSS3%20%2F%20JS-blue.svg)]()
 
-**DebugCalc** is a beginner-friendly open-source debugging workshop repository. It provides students and new open-source contributors with a realistic, lightweight sandbox to practice **Git workflows**, **reading existing code**, **software debugging**, **HTTP APIs**, and submitting their very first **Pull Requests (PRs)**!
+**DebugCalc** is a beginner-friendly open-source debugging workshop repository. It gives students and new open-source contributors a realistic, lightweight sandbox to practice **Git workflows**, **reading existing code**, **software debugging**, **HTTP APIs**, and submitting their first **Pull Requests**.
 
 ---
 
 ## 🎯 Project Purpose
 
 In real-world software engineering, developers rarely write code from scratch. Most time is spent:
+
 1. Reading and understanding someone else's codebase.
 2. Reproducing bug reports filed by users.
-3. Formulating a hypothesis and locating the root cause in code.
+3. Forming a hypothesis and locating the root cause in code.
 4. Implementing a targeted, minimal fix without breaking existing behavior.
-5. Creating feature/bugfix branches and submitting clean pull requests with descriptive documentation.
+5. Creating branches and submitting clean pull requests with clear documentation.
 
-**DebugCalc** provides this exact experience:
-- The **Frontend** is 100% complete, fully functional, and bug-free.
-- The **Backend** is written in lightweight, cross-platform **C** and intentionally contains subtle logic bugs, edge-case flaws, and protocol discrepancies waiting for you to solve!
+DebugCalc provides exactly that experience:
+
+- The **frontend** is 100% complete, fully functional, and bug-free.
+- The **backend** is lightweight, cross-platform **C**, and intentionally contains subtle logic bugs, edge-case flaws, and protocol discrepancies waiting for you to find.
 
 ---
 
@@ -41,16 +43,16 @@ In real-world software engineering, developers rarely write code from scratch. M
 ┌────────────────────────────────────────────────────────┐
 │                   C Backend                            │
 │  backend/main.c                                        │
-│  - Native HTTP Socket Server listening on :8080        │
-│  - Request Parser & Parameter Validator                │
-│  - Mathematical Calculation Engine                     │
-│  - JSON Response Formatter (200 OK / 400 Bad Request)  │
+│  - Native HTTP socket server listening on :8080        │
+│  - Request parser & parameter validator                │
+│  - Mathematical calculation engine                     │
+│  - JSON response formatter (200 OK / 400 Bad Request)  │
 └────────────────────────────────────────────────────────┘
 ```
 
 ### Communication Protocol
-The frontend speaks directly to the backend over HTTP GET queries on port `8080`.
-All responses are formatted in UTF-8 JSON with standard CORS headers (`Access-Control-Allow-Origin: *`), meaning the frontend can be opened directly from disk or hosted on any local web server.
+
+The frontend talks to the backend over HTTP `GET` requests on port `8080`. All responses are UTF-8 JSON with standard CORS headers (`Access-Control-Allow-Origin: *`), so the frontend works whether you open it directly from disk or host it on a local web server.
 
 ---
 
@@ -68,8 +70,8 @@ debugcalc/
 │   ├── main.c           # Pure C HTTP server & calculation engine
 │   └── Makefile         # Build configuration for Linux / macOS / Windows
 │
-├── README.md            # You are here!
-├── INSTRUCTOR_NOTES.md  # Instructor answer key (Do not distribute to students)
+├── README.md            # You are here
+├── INSTRUCTOR_NOTES.md  # Instructor answer key (do not distribute to students)
 ├── .gitignore           # Ignores compiled binaries & build artifacts
 └── LICENSE              # MIT License
 ```
@@ -80,45 +82,63 @@ debugcalc/
 
 ### 1. Prerequisites
 
-You will need a C compiler installed on your system:
-- **Windows**: [MinGW-w64 / GCC](https://www.msys2.org/) or [Git for Windows SDK](https://git-scm.com/)
-- **Linux**: GCC (`sudo apt install build-essential` or `sudo dnf groupinstall "Development Tools"`)
-- **macOS**: Clang / Xcode Command Line Tools (`xcode-select --install`)
-- **Git**: Installed and configured with your name and email.
+You need a C compiler installed:
+
+| Platform | Compiler |
+|---|---|
+| **Windows** | [MinGW-w64 / GCC](https://www.msys2.org/) or [Git for Windows SDK](https://git-scm.com/) |
+| **Linux** | GCC — `sudo apt install build-essential` or `sudo dnf groupinstall "Development Tools"` |
+| **macOS** | Clang / Xcode Command Line Tools — `xcode-select --install` |
+
+You also need **Git**, configured with your name and email.
 
 ---
 
-### 2. Compilation & Running the Backend
+### 2. Compiling & Running the Backend
 
-Open your terminal or command prompt and navigate to the project directory:
+Navigate to the project directory:
 
 ```bash
 cd debugcalc
 ```
 
-#### Windows (PowerShell / Command Prompt)
-Compile with GCC linking the Windows Socket library (`-lws2_32`):
-```powershell
-gcc backend/main.c -o backend/debugcalc.exe -lws2_32
-```
-Run the executable:
-```powershell
-.\backend\debugcalc.exe
+#### Option A — Using Make (recommended)
+
+```bash
+make -C backend
 ```
 
-#### Linux & macOS (Bash / Zsh)
-Compile using `gcc` or `make`:
-```bash
-gcc backend/main.c -o backend/debugcalc -lm
-```
-*(Or simply run `make -C backend`)*
+#### Option B — If `make` doesn't work, compile manually with GCC
 
-Run the server:
+**Windows** — link the Winsock library with `-lws2_32`:
+
+```powershell
+gcc main.c -o main -lws2_32
+```
+
+**Linux & macOS** — link the math library with `-lm`:
+
 ```bash
-./backend/debugcalc
+gcc main.c -o main -lm
+```
+
+> Run these from inside the `backend/` folder. If you'd rather stay in the project root, use the full path instead:
+> ```bash
+> gcc backend/main.c -o backend/main -lws2_32   # Windows
+> gcc backend/main.c -o backend/main -lm        # Linux / macOS
+> ```
+
+#### Run the server
+
+```powershell
+.\backend\main.exe     # Windows
+```
+```bash
+./backend/main         # Linux / macOS
 ```
 
 You should see:
+
 ```text
 ====================================================
   DebugCalc C Backend v1.0
@@ -129,170 +149,263 @@ You should see:
 [INFO] Server ready to accept connections. Press Ctrl+C to terminate.
 ```
 
+> **Port 8080 already in use?** Find what's using it with `netstat -ano | findstr :8080` (Windows) or `lsof -i :8080` (Linux/macOS), then stop that process or change the port in `main.c`.
+
 ---
 
 ### 3. Launching the Frontend
 
-Simply open `frontend/index.html` in your favorite web browser:
-- **Windows**: Double-click `frontend/index.html` or run:
-  ```powershell
-  start frontend/index.html
-  ```
-- **macOS**:
-  ```bash
-  open frontend/index.html
-  ```
-- **Linux**:
-  ```bash
-  xdg-open frontend/index.html
-  ```
+Open `frontend/index.html` in your browser:
 
-Alternatively, you can serve it with any static local server (e.g. `npx serve frontend` or `python -m http.server 3000 -d frontend`).
+```powershell
+start frontend/index.html     # Windows
+```
+```bash
+open frontend/index.html      # macOS
+xdg-open frontend/index.html  # Linux
+```
 
-When opened, check the upper-right corner:
-- 🟢 **Backend Online (Connected Port 8080)**: Everything is ready!
-- 🔴 **Backend Offline**: Make sure your C server is running in your terminal.
+Or serve it with any static local server:
+
+```bash
+npx serve frontend
+python -m http.server 3000 -d frontend
+```
+
+Check the status indicator in the upper-right corner:
+
+- 🟢 **Backend Online (Connected Port 8080)** — everything is ready.
+- 🔴 **Backend Offline** — your C server isn't running. Go back to step 2.
 
 ---
 
 ## 📡 API Specification
 
 ### 1. Health Check
-Checks if the backend is online and accepting connections.
+
+Checks whether the backend is online and accepting connections.
 
 - **URL**: `/health`
 - **Method**: `GET`
 - **Success Response**: `200 OK`
-  ```json
-  {
-    "status": "ok"
-  }
-  ```
+
+```json
+{ "status": "ok" }
+```
 
 ---
 
 ### 2. Arithmetic Calculation
-Evaluates a mathematical operation between two numeric operands `a` and `b`.
+
+Evaluates an operation between two numeric operands `a` and `b`.
 
 - **URL**: `/api/calculate`
 - **Method**: `GET`
-- **Query Parameters**:
-  | Parameter | Type | Required | Description |
-  |---|---|---|---|
-  | `op` | String | Yes | Mathematical operation: `add`, `subtract`, `multiply`, `divide` |
-  | `a` | Number | Yes | First operand (e.g. `10`, `3.14`, `-5`) |
-  | `b` | Number | Yes | Second operand (e.g. `20`, `2`, `0.5`) |
 
-#### Successful Calculation
-- **Status**: `200 OK`
-- **Example Request**: `GET /api/calculate?op=add&a=10&b=20`
-- **Response**:
-  ```json
-  {
-    "result": 30
-  }
-  ```
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `op` | String | Yes | Operation: `add`, `subtract`, `multiply`, `divide` |
+| `a` | Number | Yes | First operand (e.g. `10`, `3.14`, `-5`) |
+| `b` | Number | Yes | Second operand (e.g. `20`, `2`, `0.5`) |
 
-#### Error Response
-- **Status**: `400 Bad Request`
-- **Example Request**: `GET /api/calculate?op=divide&a=10&b=0`
-- **Response**:
-  ```json
-  {
-    "error": "Division by zero"
-  }
-  ```
+**Successful calculation — `200 OK`**
+
+```bash
+curl "http://localhost:8080/api/calculate?op=add&a=10&b=20"
+```
+```json
+{ "result": 30 }
+```
+
+**Error response — `400 Bad Request`**
+
+```bash
+curl "http://localhost:8080/api/calculate?op=divide&a=10&b=0"
+```
+```json
+{ "error": "Division by zero" }
+```
+
+> This specification is the source of truth. A bug exists whenever the backend's behavior disagrees with this section.
 
 ---
 
 ## 🛠️ Contribution Workflow for Students
 
-Follow this step-by-step guide to find a bug, fix it, and submit your pull request!
+### Step 1 — Clone the repository
 
-### Step 1: Clone the Repository
 ```bash
 git clone https://github.com/your-org/debugcalc.git
 cd debugcalc
 ```
 
-### Step 2: Create a Dedicated Branch
-Never commit directly to `main`! Create a branch named descriptively for the bug you are tackling:
+### Step 2 — Create a dedicated branch
+
+Never commit directly to `main`. Name your branch after the bug you're tackling:
+
 ```bash
 git checkout -b fix/subtraction-reversed-operands
 ```
-*(Branch naming convention: `fix/<issue-name>` or `feature/<feature-name>`)*
 
-### Step 3: Reproduce and Confirm the Bug
+Naming convention: `fix/<issue-name>` or `feature/<feature-name>`.
+
+### Step 3 — Reproduce and confirm the bug
+
 Before changing any code:
-1. Start the backend (`.\backend\debugcalc.exe` or `./backend/debugcalc`).
-2. Open the frontend or use `curl`:
+
+1. Start the backend.
+2. Open the frontend, or use `curl`:
    ```bash
    curl "http://localhost:8080/api/calculate?op=subtract&a=10&b=3"
    ```
-3. Observe the output:
-   - What did you expect? (`7`)
-   - What did it actually return? (`-7`)
-4. Document the exact reproduction steps.
+3. Note what you expected (`7`) versus what you got (`-7`).
+4. Write down the exact reproduction steps.
 
-### Step 4: Locate and Fix the Issue in C
-Open `backend/main.c` in your code editor.
+### Step 4 — Locate and fix the issue
+
+Open `backend/main.c`:
+
 - Search for the relevant function or operation (`strcmp(op, "subtract")`).
 - Read the surrounding logic and comments carefully.
-- Implement the minimal, correct fix.
+- Implement the minimal, correct fix — fix the cause, not the symptom.
 
-### Step 5: Recompile and Verify
-Recompile the backend:
-```bash
-gcc backend/main.c -o backend/debugcalc.exe -lws2_32
+### Step 5 — Recompile and verify
+
+```powershell
+gcc main.c -o main -lws2_32    # Windows
 ```
-Run tests against your fix:
-1. Re-run your reproduction command to verify that the bug is fixed.
-2. Run edge-case tests to make sure you didn't introduce regressions.
+```bash
+gcc main.c -o main -lm         # Linux / macOS
+```
 
-### Step 6: Commit Your Changes
-Stage and commit your changes using a clean [Conventional Commit](https://www.conventionalcommits.org/) message:
+Then:
+
+1. Re-run your reproduction command to confirm the bug is gone.
+2. Test edge cases — negatives, decimals, zero, missing parameters, unknown operations.
+3. Confirm the other operations still work.
+
+### Step 6 — Commit your changes
+
+Use a [Conventional Commit](https://www.conventionalcommits.org/) message:
+
 ```bash
 git add backend/main.c
 git commit -m "fix(backend): correct operand order in subtraction"
 ```
 
-### Step 7: Push and Open a Pull Request
-Push your branch to your remote repository:
+### Step 7 — Push and open a Pull Request
+
 ```bash
 git push -u origin fix/subtraction-reversed-operands
 ```
-Then go to GitHub/GitLab and open a **Pull Request** against `main`!
 
-#### Pull Request Description Checklist
-Your PR description should include:
-- **Problem**: What was broken?
-- **Reproduction**: How can reviewers reproduce the old behavior?
-- **Cause**: Why was the bug happening in `backend/main.c`?
-- **Solution**: How did your changes fix the issue?
-- **Verification**: Proof that it now works (screenshots or curl output).
+Then open a Pull Request against `main`.
+
+**PR description checklist:**
+
+- **Problem** — what was broken?
+- **Reproduction** — how can reviewers reproduce the old behavior?
+- **Cause** — why was the bug happening in `backend/main.c`?
+- **Solution** — how do your changes fix it?
+- **Verification** — proof that it works now (screenshots or `curl` output).
+
+---
+
+## 🕵️ First Contribution: The Typo Hunt
+
+Not ready to take on the C backend yet? Start here. Documentation fixes are real contributions, and typo hunting is how a lot of open-source contributors make their first PR.
+
+**The paragraph below contains exactly 11 deliberate spelling mistakes.** Find them, fix them, and open a PR on a branch named `fix/readme-typos`.
+
+> **📼 Mission Briefing** *(practice zone — the typos below are intentional)*
+>
+> Wellcome to the DebugCalc firmware team. Our calcualtor has been deployed to over three thousand labratories world-wide, and the maintainence crew has gone dark. Your mision, should you choose to acept it, is to restore the arithmatic core before the next release windo closes. Remeber: every fix begins with a reproducable bug report, and every pull request tells a story. Good luck, contributer.
+
+**Rules of the hunt:**
+
+- Fix only the typos. Don't rewrite the prose or reflow the paragraph.
+- Change nothing else in this file. A PR that fixes eleven words should show a diff of eleven words.
+- List every correction in your PR description as `misspelling → correction`.
+- If you spot a twelfth mistake elsewhere in the README, that one is genuine — file a separate issue for it.
+
+> ⚠️ **Maintainers:** this block is intentional. Reject PRs that silently "correct" it outside the exercise, and restore it if a linter flattens it.
 
 ---
 
 ## 💡 Debugging Tips for Beginners
 
-1. **Watch the Terminal Logs**:
-   Every time a request arrives, the server prints a log line showing the path, query parameters, status code, and result:
-   ```text
-   [INFO] Handled GET /api/calculate?op=add&a=10&b=20 -> 200 OK (result: 30)
-   ```
-2. **Use the In-Page API Inspector**:
-   The bottom of the DebugCalc web page features a live **API Inspector** that shows the outgoing URL and the raw JSON response payload returned by your C code.
-3. **Inspect HTTP Status Codes with curl**:
-   Add the `-i` flag to curl to view the raw HTTP headers and status codes:
-   ```bash
-   curl -i "http://localhost:8080/api/calculate?op=divide&a=0&b=5"
-   ```
+**1. Watch the terminal logs.** Every request prints a line with the path, query parameters, status code, and result:
+
+```text
+[INFO] Handled GET /api/calculate?op=add&a=10&b=20 -> 200 OK (result: 30)
+```
+
+If the log disagrees with the browser, that tells you which side the bug is on.
+
+**2. Use the in-page API Inspector.** The panel at the bottom of the page shows the outgoing URL and the raw JSON your C code returned.
+
+**3. Inspect HTTP status codes.** Add `-i` to curl to see the raw headers:
+
+```bash
+curl -i "http://localhost:8080/api/calculate?op=divide&a=0&b=5"
+```
+
+A wrong status code with the right answer is still a bug.
+
+**4. Change one thing at a time.** If you edit four lines and behavior changes, you won't know which line did it.
+
+**5. `printf` is a debugger.** Printing `a`, `b`, and `op` right after parsing will solve most bugs here. `gdb` and `lldb` are there when you need more.
+
+**6. Suspect the boundaries.** Most bugs live where values cross a line: string → number, request → parser, calculation → JSON.
+
+---
+
+## 🌍 Tips for Contributing to Open Source
+
+These apply well beyond this repository.
+
+### Before you write code
+
+- **Read `CONTRIBUTING.md` first.** Most projects have one, and maintainers can tell instantly who skipped it.
+- **Search existing issues.** Your bug has probably been reported. Adding context to an existing thread beats opening a duplicate.
+- **Claim the issue.** Comment that you'd like to work on it and wait for confirmation, so two people don't write the same patch.
+- **Start small on purpose.** Typos, documentation gaps, a missing test — these teach you the workflow while the stakes are low.
+
+### While you work
+
+- **Match the project's style.** Their brace placement, naming, and indentation — not your personal preferences.
+- **One PR, one idea.** A fix bundled with a refactor and a formatting pass will sit unreviewed.
+- **Don't reformat files you didn't need to touch.** A two-line fix buried in a 400-line whitespace diff is unreviewable.
+- **Keep your branch current.** Pull `main` before pushing; resolving conflicts is your job, not the reviewer's.
+
+### When you open the PR
+
+- **Write for someone with no context.** Problem, cause, fix, proof.
+- **Link the issue** with `Fixes #42` so it closes automatically.
+- **Explain the *why*, not the *what*.** The diff already shows what changed.
+- **Mark it as a draft** if it isn't finished. Draft PRs invite early feedback.
+
+### When review comes back
+
+- **Review comments are about the code, not about you.** This is the hardest lesson and the most important one.
+- **Respond with commits, not arguments.** If you disagree, say so once with reasoning, then defer.
+- **"I don't understand this feedback" is a fine comment.** Asking is faster than guessing wrong twice.
+- **Be patient.** Most maintainers are volunteers. A week of silence is normal; two weeks earns one polite follow-up.
+
+### Things nobody tells you
+
+- **Documentation counts.** So does issue triage, reproducing other people's bugs, and answering questions.
+- **A rejected PR isn't a failure.** Scope and timing decisions often have nothing to do with quality. Ask what would have worked.
+- **Ask in public.** Post questions in the issue thread, not in DMs — the next person searching will find your answer.
+
+---
+
+## 🤝 Code of Conduct
+
+Be decent and assume good faith. Beginner questions are welcome in the issue tracker; this repository exists precisely because everyone starts somewhere.
 
 ---
 
 ## 📜 License
 
-This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
-#   e m p t y 2 
- 
- 
+This project is licensed under the MIT License — see [LICENSE](LICENSE) for details.
