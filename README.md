@@ -76,3 +76,132 @@ debugcalc/
 
 ---
 
+## 🚀 Quickstart Guide
+
+### 1. Prerequisites
+
+You will need a C compiler installed on your system:
+- **Windows**: [MinGW-w64 / GCC](https://www.msys2.org/) or [Git for Windows SDK](https://git-scm.com/)
+- **Linux**: GCC (`sudo apt install build-essential` or `sudo dnf groupinstall "Development Tools"`)
+- **macOS**: Clang / Xcode Command Line Tools (`xcode-select --install`)
+- **Git**: Installed and configured with your name and email.
+
+---
+
+### 2. Compilation & Running the Backend
+
+Open your terminal or command prompt and navigate to the project directory:
+
+```bash
+cd debugcalc
+```
+
+#### Windows (PowerShell / Command Prompt)
+Compile with GCC linking the Windows Socket library (`-lws2_32`):
+```powershell
+gcc backend/main.c -o backend/debugcalc.exe -lws2_32
+```
+Run the executable:
+```powershell
+.\backend\debugcalc.exe
+```
+
+#### Linux & macOS (Bash / Zsh)
+Compile using `gcc` or `make`:
+```bash
+gcc backend/main.c -o backend/debugcalc -lm
+```
+*(Or simply run `make -C backend`)*
+
+Run the server:
+```bash
+./backend/debugcalc
+```
+
+You should see:
+```text
+====================================================
+  DebugCalc C Backend v1.0
+  Listening on http://localhost:8080
+  Health Check: http://localhost:8080/health
+  Calculate:    http://localhost:8080/api/calculate?op=add&a=10&b=20
+====================================================
+[INFO] Server ready to accept connections. Press Ctrl+C to terminate.
+```
+
+---
+
+### 3. Launching the Frontend
+
+Simply open `frontend/index.html` in your favorite web browser:
+- **Windows**: Double-click `frontend/index.html` or run:
+  ```powershell
+  start frontend/index.html
+  ```
+- **macOS**:
+  ```bash
+  open frontend/index.html
+  ```
+- **Linux**:
+  ```bash
+  xdg-open frontend/index.html
+  ```
+
+Alternatively, you can serve it with any static local server (e.g. `npx serve frontend` or `python -m http.server 3000 -d frontend`).
+
+When opened, check the upper-right corner:
+- 🟢 **Backend Online (Connected Port 8080)**: Everything is ready!
+- 🔴 **Backend Offline**: Make sure your C server is running in your terminal.
+
+---
+
+## 📡 API Specification
+
+### 1. Health Check
+Checks if the backend is online and accepting connections.
+
+- **URL**: `/health`
+- **Method**: `GET`
+- **Success Response**: `200 OK`
+  ```json
+  {
+    "status": "ok"
+  }
+  ```
+
+---
+
+### 2. Arithmetic Calculation
+Evaluates a mathematical operation between two numeric operands `a` and `b`.
+
+- **URL**: `/api/calculate`
+- **Method**: `GET`
+- **Query Parameters**:
+  | Parameter | Type | Required | Description |
+  |---|---|---|---|
+  | `op` | String | Yes | Mathematical operation: `add`, `subtract`, `multiply`, `divide` |
+  | `a` | Number | Yes | First operand (e.g. `10`, `3.14`, `-5`) |
+  | `b` | Number | Yes | Second operand (e.g. `20`, `2`, `0.5`) |
+
+#### Successful Calculation
+- **Status**: `200 OK`
+- **Example Request**: `GET /api/calculate?op=add&a=10&b=20`
+- **Response**:
+  ```json
+  {
+    "result": 30
+  }
+  ```
+
+#### Error Response
+- **Status**: `400 Bad Request`
+- **Example Request**: `GET /api/calculate?op=divide&a=10&b=0`
+- **Response**:
+  ```json
+  {
+    "error": "Division by zero"
+  }
+  ```
+
+---
+
