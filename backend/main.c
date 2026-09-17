@@ -137,4 +137,42 @@ int is_valid_number(const char *str) {
     return 1;
 }
 
+/* Send formatted HTTP response with standard CORS headers */
+void send_http_response(socket_t client_sock, int status_code, const char *status_text, const char *json_body) {
+    char header[1024];
+    int content_length = (int)strlen(json_body);
+
+    snprintf(header, sizeof(header),
+             "HTTP/1.1 %d %s\r\n"
+             "Content-Type: application/json; charset=UTF-8\r\n"
+             "Content-Length: %d\r\n"
+             "Access-Control-Allow-Origin: *\r\n"
+             "Access-Control-Allow-Methods: GET, OPTIONS\r\n"
+             "Access-Control-Allow-Headers: Content-Type, Accept\r\n"
+             "Connection: close\r\n\r\n",
+             status_code, status_text, content_length);
+
+    send(client_sock, header, (int)strlen(header), 0);
+    send(client_sock, json_body, content_length, 0);
+}
+
+/* Format a double as a clean JSON number string without unnecessary trailing zeros */
+void format_json_number(double num, char *out_buf, size_t max_len) {
+    if (isnan(num)) {
+        snprintf(out_buf, max_len, "\"NaN\"");
+        return;
+    }
+    if (isinf(num)) {
+        snprintf(out_buf, max_len, num > 0 ? "\"Infinity\"" : "\"-Infinity\"");
+        return;
+    }
+    
+    /* If number is an integer in normal range, format as integer */
+    if (floor(num) == num && fabs(num) < 1e14) {
+        snprintf(out_buf, max_len, "%.0f", num);
+    } else {
+        snprintf(out_buf, max_len, "%.6g", num);
+    }
+}
+
 int main(void) { return 0; }
