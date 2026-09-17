@@ -1,0 +1,30 @@
+# Compiled Binaries & Executables
+*.exe
+*.out
+*.app
+debugcalc
+backend/debugcalc
+backend/debugcalc.exe
+
+# Object & Library Files
+*.o
+*.obj
+*.so
+*.dylib
+*.dll
+*.lib
+*.a
+
+# Editor & IDE Directories
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Logs & Temporary Files
+*.log
+scratch/
+tmp/
