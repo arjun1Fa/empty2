@@ -175,4 +175,11 @@ void format_json_number(double num, char *out_buf, size_t max_len) {
     }
 }
 
+/* Handler for GET /health */
+void handle_health(socket_t client_sock) {
+    const char *body = "{\"status\": \"ok\"}";
+    send_http_response(client_sock, 200, "OK", body);
+    printf("[INFO] Handled GET /health -> 200 OK\n");
+}
+
 int main(void) { return 0; }
